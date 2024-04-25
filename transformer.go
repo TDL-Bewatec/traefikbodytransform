@@ -61,48 +61,5 @@ func (a *transformer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
     token := req.URL.Query().Get(a.tokenTransformQueryParameterFieldName)
 	fmt.Println("traefikbodytransform:token ==>", token)
 	req.Header.Set("Authorization", "Bearer "+token)
-	if param := req.URL.Query().Get(a.transformerQueryParameterName); len(param) > 0 {
-		for _, opt := range strings.Split(strings.ToLower(param), "|") {
-			fmt.Println("traefikbodytransform:opt ==>", opt)
-			transformerOption[opt] = true
-		}
-	}
-
-	fmt.Println("printing transformerOption ==>")
-	for opt, optVal := range transformerOption {
-    fmt.Println(opt, optVal)
-	}
-
-	if transformerOption["body"] {
-		reqBody, err := io.ReadAll(req.Body)
-		if err != nil {
-			a.log(err.Error())
-
-			http.Error(rw, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		jsonBody, err := json.Marshal(map[string]string{
-			a.jsonTransformFieldName: string(reqBody),
-		})
-		if err != nil {
-			a.log(err.Error())
-
-			http.Error(rw, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		req.Body = io.NopCloser(strings.NewReader(string(jsonBody)))
-		req.ContentLength = int64(len(jsonBody))
-	}
-	if transformerOption["json"] {
-		req.Header.Set("Content-Type", "application/json")
-	}
-	if transformerOption["bearer"] {
-		fmt.Println("traefikbodytransform ==> inside if bearer")
-		token := req.URL.Query().Get(a.tokenTransformQueryParameterFieldName)
-		fmt.Println("traefikbodytransform:token ==>", token)
-		req.Header.Set("Authorization", "Bearer "+token)
-	}
-
 	a.next.ServeHTTP(rw, req)
 }
