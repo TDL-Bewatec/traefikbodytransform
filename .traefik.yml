@@ -1,10 +1,10 @@
-displayName: BodyTransformerMiddleware Plugin
+displayName: tokentoheader
 type: middleware
 iconPath: .assets/icon.png
 
-import: github.com/PongDev/traefikbodytransform
+import: github.com/TDL-Bewatec/traefikbodytransform
 
-summary: "[BodyTransformerMiddleware] Modified request body from query string"
+summary: "[tokentoheaderMiddleware] Modified request body from query string"
 
 testData:
   transformerQueryParameterName: "transform"
