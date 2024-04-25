@@ -54,8 +54,11 @@ func (a *transformer) log(format string) {
 func (a *transformer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	value := req.Header.Get(a.inputHeader)
     fmt.Println("traefikbodytransform:value ==>", value)
-    token := req.URL.Query().Get(a.tokenTransformQueryParameterFieldName)
-	fmt.Println("traefikbodytransform:token ==>", token)
-	req.Header.Set("Authorization", "Bearer "+token)
+	if value == "" {
+		token := req.URL.Query().Get(a.tokenTransformQueryParameterFieldName)
+	    fmt.Println("traefikbodytransform:token ==>", token)
+	    req.Header.Set("Authorization", "Bearer "+token)
+	}
+
 	a.next.ServeHTTP(rw, req)
 }
