@@ -13,7 +13,7 @@ import (
 
 // Config the plugin configuration.
 type Config struct {
-
+    InputHeader  string `json:"inputHeader,omitempty"`
 	TokenTransformQueryParameterFieldName string `json:"tokenTransformQueryParameterFieldName,omitempty"`
 }
 
@@ -21,6 +21,7 @@ type Config struct {
 func CreateConfig() *Config {
 	return &Config{
 		TokenTransformQueryParameterFieldName: "token",
+		InputHeader:  "Authorization",
 	}
 }
 
@@ -29,6 +30,7 @@ type transformer struct {
 	next                                  http.Handler
 	name                                  string
 	tokenTransformQueryParameterFieldName string
+	inputHeader                           string
 }
 
 // New created a new transformer plugin.
@@ -38,6 +40,7 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 		next:                                  next,
 		name:                                  name,
 		tokenTransformQueryParameterFieldName: config.TokenTransformQueryParameterFieldName,
+		inputHeader:                           config.InputHeader,
 	}, nil
 }
 
@@ -49,7 +52,8 @@ func (a *transformer) log(format string) {
 }
 
 func (a *transformer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	transformerOption := make(map[string]bool)
+	value := req.Header.Get(a.inputHeader)
+    fmt.Println("traefikbodytransform:value ==>", value)
     token := req.URL.Query().Get(a.tokenTransformQueryParameterFieldName)
 	fmt.Println("traefikbodytransform:token ==>", token)
 	req.Header.Set("Authorization", "Bearer "+token)
